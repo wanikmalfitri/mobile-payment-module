@@ -39,7 +39,6 @@ const HomeScreen: React.FC = () => {
   };
 
   const getRecentTransactions = async (page: number) => {
-    setLoading(true);
     try {
       const { transactions, hasMore: more } =
         await TransactionService.getRecentTransactions(page);
@@ -48,8 +47,6 @@ const HomeScreen: React.FC = () => {
       setPageNum(page);
     } catch (error) {
       console.error("Failed to load recent recipients:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
