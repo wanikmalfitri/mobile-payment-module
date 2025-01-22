@@ -1,5 +1,5 @@
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   View,
   Text,
@@ -25,6 +25,11 @@ const TransferSuccess: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<TransferSuccessRouteProp>();
   const { transactionId, amount, recipientName } = route.params;
+
+  const formattedAmount = useMemo(() => {
+    return `MYR ${(amount / 100).toFixed(2)}`;
+  }, [amount]);
+
   const handleDone = () => {
     navigation.reset({
       index: 0,
@@ -45,7 +50,7 @@ const TransferSuccess: React.FC = () => {
         <View style={styles.detailsCard}>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Amount</Text>
-            <Text style={styles.detailValue}>${amount.toFixed(2)}</Text>
+            <Text style={styles.detailValue}>{formattedAmount}</Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Recipient</Text>

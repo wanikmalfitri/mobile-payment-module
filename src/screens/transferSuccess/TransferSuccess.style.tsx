@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
   detailValue: {
     fontSize: FONT_SIZE.MEDIUM,
-    fontWeight: FONT_WEIGHT.BOLD,
+    fontWeight: FONT_WEIGHT.MEDIUM,
     color: COLORS.BLACK,
   },
   shareButton: {

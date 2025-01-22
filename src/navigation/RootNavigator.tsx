@@ -49,8 +49,9 @@ export type RootStackParamList = {
   Home: undefined;
   Transfer: undefined;
   TransferSuccess: {
-    transactionId: string;
+    transactionId: any;
     amount: number;
     recipientName: string;
+    note: string;
   };
 };

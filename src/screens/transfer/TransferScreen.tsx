@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -6,63 +6,101 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
-import {
-  COLORS,
-} from "../../theme";
+import { COLORS } from "../../theme";
 import { Recipient } from "../../types/recipient";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/RootNavigator";
 import styles from "./TransferScreen.style";
-
-interface RecentRecipient extends Recipient {
-  lastTransactionDate: string;
-  accountNumber: string;
-}
-
-const recentRecipients: RecentRecipient[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    accountNumber: "**** 1234",
-    lastTransactionDate: "2024-03-20",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    accountNumber: "**** 5678",
-    lastTransactionDate: "2024-03-18",
-  },
-  {
-    id: "3",
-    name: "Alice Johnson",
-    accountNumber: "**** 9012",
-    lastTransactionDate: "2024-03-16",
-  },
-];
+import { recentRecipients } from "../../data/transactions";
+import { formatDistance } from "date-fns";
+import { TransferPayload } from "../../types/transaction";
+import { TransactionResult } from "../../types/transaction";
+import { TransactionService } from "../../services/TransactionService";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Transfer">;
 
 const TransferScreen: React.FC = () => {
-    const navigation = useNavigation<NavigationProp>(); 
+  const navigation = useNavigation<NavigationProp>();
   const [selectedRecipient, setSelectedRecipient] = useState<Recipient | null>(
     null
   );
   const [note, setNote] = useState<string | null>(null);
   const [amount, setAmount] = useState<number | null>(null);
+
+  const formattedAmount = useMemo(() => {
+    if (!amount) return "MYR0.00";
+    if (amount > 100000000) return "MYR99999999.99";
+    return `MYR${(amount / 100).toFixed(2)}`;
+  }, [amount]);
+
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleSubmit = () => {
-    navigation.navigate("TransferSuccess", {
-      transactionId: "123456",
-      amount: 100,
-      recipientName: "John Doe",
-    });
+  const handleSubmit = async () => {
+    if (!selectedRecipient) {
+      Alert.alert("Please select a recipient");
+      return;
+    }
+
+    if (!amount) {
+      Alert.alert("Please enter an amount");
+      return;
+    }
+
+    if (amount <= 100) {
+      Alert.alert("Minimum amount is MYR 1.00");
+      return;
+    }
+
+    if (amount > 100000000) {
+      Alert.alert("Maximum amount is MYR 99999999.99");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await processTransfer({
+        recipientId: selectedRecipient.id,
+        amount: amount,
+        note: note || "",
+      });
+
+      if (result.success) {
+        navigation.navigate("TransferSuccess", {
+          transactionId: result.transactionId,
+          amount: amount,
+          recipientName: selectedRecipient.name,
+          note: note || "",
+        });
+      }
+    } catch (error) {
+      Alert.alert((error as Error).message);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const processTransfer = useCallback(
+    async (payload: TransferPayload): Promise<TransactionResult> => {
+      const result = await TransactionService.processTransfer(payload);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
+    []
+  );
 
   return (
     <SafeAreaView style={styles.container}>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={COLORS.PRIMARY} />
+        </View>
+      )}
       <View style={styles.content}>
         <Text style={styles.label}>Recent Recipients</Text>
         <ScrollView
@@ -81,7 +119,11 @@ const TransferScreen: React.FC = () => {
                 {recipient.accountNumber}
               </Text>
               <Text style={styles.transactionDate}>
-                {recipient.lastTransactionDate}
+                {formatDistance(
+                  new Date(recipient.lastTransactionDate),
+                  new Date(),
+                  { addSuffix: true }
+                )}
               </Text>
             </TouchableOpacity>
           ))}
@@ -103,7 +145,6 @@ const TransferScreen: React.FC = () => {
           keyboardType="numeric"
           placeholder="Enter amount"
           placeholderTextColor={COLORS.GRAY}
-          maxLength={100}
         />
         <Text style={styles.label}>Note</Text>
         <TextInput
@@ -120,7 +161,7 @@ const TransferScreen: React.FC = () => {
           style={[styles.transferButton]}
           onPress={() => handleSubmit()}
         >
-          <Text style={styles.buttonText}>Submit</Text>
+          <Text style={styles.buttonText}>Transfer {formattedAmount}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

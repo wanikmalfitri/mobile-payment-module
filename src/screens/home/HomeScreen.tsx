@@ -29,7 +29,7 @@ const HomeScreen: React.FC = () => {
     setLoading(true);
     try {
       const balance = await TransactionService.getBalance();
-      setBalance(balance.available);
+      setBalance(balance.available/100);
       await getRecentTransactions(1);
     } catch (error) {
       console.error("Failed to load initial data", error);
@@ -90,7 +90,7 @@ const HomeScreen: React.FC = () => {
       {item.lastTransactionAmount && (
         <Text style={styles.transactionAmount}>
           {item.transactionType === "deposit" ? "+ " : "- "}RM
-          {item.lastTransactionAmount.toFixed(2)}
+          {(item.lastTransactionAmount/100).toFixed(2)}
         </Text>
       )}
     </View>

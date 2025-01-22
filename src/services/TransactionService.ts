@@ -1,6 +1,8 @@
 import {
   UserBalance,
   Transaction,
+  TransferPayload,
+  TransactionResult,
 } from "../types/transaction";
 import data from "../data/transactions";
 
@@ -12,9 +14,30 @@ export class TransactionService {
   static async getBalance(): Promise<UserBalance> {
     await this.delay(800);
     return {
-      total: 2194.03,
-      available: 1994.03,
+      total: 219403,
+      available: 199403,
       currency: "MYR",
+    };
+  }
+
+  static async processTransfer(
+    payload: TransferPayload
+  ): Promise<TransactionResult> {
+    await this.delay(2000);
+
+    // Simulate insufficient balance
+    if (payload.amount > 199403) {
+      throw new Error("Insufficient balance");
+    }
+
+    // Simulate network error - using strict equality
+    if (payload.amount === 999) {
+      throw new Error("Network error");
+    }
+
+    return {
+      success: true,
+      transactionId: Math.random().toString(36).substr(2, 9),
     };
   }
 
