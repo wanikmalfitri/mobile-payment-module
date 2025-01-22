@@ -28,8 +28,12 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.SMALL,
     padding: SPACING.MEDIUM,
     marginBottom: SPACING.LARGE,
-    borderWidth: BORDER_WIDTH.THIN,
-    borderColor: COLORS.GRAY,
+    borderWidth: BORDER_WIDTH.MEDIUM,
+    borderColor: COLORS.PRIMARY,
+    fontSize: FONT_SIZE.MEDIUM,
+  },
+  inputRecipient: {
+    color: COLORS.BLACK,
     fontSize: FONT_SIZE.MEDIUM,
   },
   inputText: {
@@ -51,6 +55,12 @@ const styles = StyleSheet.create({
     color: COLORS.WHITE,
     fontWeight: FONT_WEIGHT.BOLD,
     fontSize: FONT_SIZE.MEDIUM,
+  },
+  recentListTitle: {
+    color: COLORS.BLACK,
+    fontSize: FONT_SIZE.LARGE,
+    fontWeight: FONT_WEIGHT.SEMI_BOLD,
+    marginBottom: SPACING.SMALL,
   },
   recentList: {
     marginBottom: SPACING.XLARGE,

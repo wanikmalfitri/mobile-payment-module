@@ -20,6 +20,7 @@ import { formatDistance } from "date-fns";
 import { TransferPayload } from "../../types/transaction";
 import { TransactionResult } from "../../types/transaction";
 import { TransactionService } from "../../services/TransactionService";
+import { BiometricAuth } from "../../utils/biometric";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Transfer">;
 
@@ -33,7 +34,7 @@ const TransferScreen: React.FC = () => {
 
   const formattedAmount = useMemo(() => {
     if (!amount) return "MYR0.00";
-    if (amount > 100000000) return "MYR99999999.99";
+    if (amount > 100000000) return "MYR++++";
     return `MYR${(amount / 100).toFixed(2)}`;
   }, [amount]);
 
@@ -45,18 +46,23 @@ const TransferScreen: React.FC = () => {
       return;
     }
 
-    if (!amount) {
-      Alert.alert("Please enter an amount");
+    if (!amount || isNaN(amount)) {
+      Alert.alert("Please enter a valid amount");
       return;
     }
 
-    if (amount <= 100) {
-      Alert.alert("Minimum amount is MYR 1.00");
+    if (amount < 100) {
+      Alert.alert("Minimum amount is MYR1.00");
       return;
     }
 
     if (amount > 100000000) {
-      Alert.alert("Maximum amount is MYR 99999999.99");
+      Alert.alert("Maximum amount is MYR1000000.00");
+      return;
+    }
+
+    if (note && note.trim().length > 100) {
+      Alert.alert("Note cannot exceed 100 characters");
       return;
     }
 
@@ -85,6 +91,15 @@ const TransferScreen: React.FC = () => {
 
   const processTransfer = useCallback(
     async (payload: TransferPayload): Promise<TransactionResult> => {
+      // Check biometric availability and authenticate
+      const isBiometricAvailable = await BiometricAuth.isBiometricAvailable();
+      if (isBiometricAvailable) {
+        const authenticated = await BiometricAuth.authenticate();
+        if (!authenticated) {
+          throw new Error("Authentication failed");
+        }
+      }
+
       const result = await TransactionService.processTransfer(payload);
       if (!result.success) {
         throw new Error(result.error);
@@ -102,7 +117,7 @@ const TransferScreen: React.FC = () => {
         </View>
       )}
       <View style={styles.content}>
-        <Text style={styles.label}>Recent Recipients</Text>
+        <Text style={styles.recentListTitle}>Recent Recipients</Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -131,16 +146,25 @@ const TransferScreen: React.FC = () => {
 
         <Text style={styles.label}>Recipient</Text>
         <TouchableOpacity style={[styles.input]}>
-          <Text style={styles.inputText}>
-            {selectedRecipient?.name || "Select a recipient from contacts"}
-          </Text>
+          {
+            selectedRecipient ? (
+              <Text style={styles.inputRecipient}>
+                {selectedRecipient.name}
+              </Text>
+            ) : (
+              <Text style={styles.inputText}>
+                {"Select a recipient from contacts"}
+              </Text>
+            )
+          }
         </TouchableOpacity>
         <Text style={styles.label}>Amount</Text>
         <TextInput
           style={[styles.input]}
-          value={amount?.toString() || "0"}
+          value={amount?.toString() || ""}
           onChangeText={(value) => {
-            setAmount(Number(value));
+            const numericValue = value.replace(/[^0-9]/g, '');
+            setAmount(numericValue ? Number(numericValue) : null);
           }}
           keyboardType="numeric"
           placeholder="Enter amount"
