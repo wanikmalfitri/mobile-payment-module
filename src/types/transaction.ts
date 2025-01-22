@@ -6,3 +6,9 @@ export type Transaction = {
   lastTransactionAmount: number;
   transactionType: "deposit" | "withdrawal";
 };
+
+export interface UserBalance {
+  total: number;
+  available: number;
+  currency: string;
+}
