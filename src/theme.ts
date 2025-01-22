@@ -5,6 +5,7 @@ export const COLORS = {
   MUTED_WHITE: 'rgba(255, 255, 255, 0.8)',
   BLACK: '#000000',
   GRAY: '#808080',
+  LIGHT_GRAY: '#F5F5F5',
 } as const; 
 
 export const BORDER_RADIUS = {

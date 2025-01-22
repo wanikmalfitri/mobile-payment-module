@@ -21,6 +21,7 @@ import { TransferPayload } from "../../types/transaction";
 import { TransactionResult } from "../../types/transaction";
 import { TransactionService } from "../../services/TransactionService";
 import { BiometricAuth } from "../../utils/biometric";
+import { ContactSelect } from "../../components/contactSelect/ContactSelect";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Transfer">;
 
@@ -145,7 +146,7 @@ const TransferScreen: React.FC = () => {
         </ScrollView>
 
         <Text style={styles.label}>Recipient</Text>
-        <TouchableOpacity style={[styles.input]}>
+        {/* <TouchableOpacity style={[styles.input]}>
           {
             selectedRecipient ? (
               <Text style={styles.inputRecipient}>
@@ -157,7 +158,8 @@ const TransferScreen: React.FC = () => {
               </Text>
             )
           }
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        <ContactSelect selectedRecipient={selectedRecipient} onSelectRecipient={setSelectedRecipient} />
         <Text style={styles.label}>Amount</Text>
         <TextInput
           style={[styles.input]}
