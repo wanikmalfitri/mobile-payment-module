@@ -405,11 +405,16 @@ const transactions: Transaction[] = [
 
 export const reversedTransactions = [...transactions].reverse();
 
-export const recentRecipients = reversedTransactions.slice(0, 10).map((transaction) => ({
-    id: transaction.id,
-    name: transaction.name,
-    accountNumber: transaction.accountNumber,
-    lastTransactionDate: transaction.transactionDate,
-  }));
+export const recentRecipients = [...new Map(
+  reversedTransactions.slice(0, 20).map(transaction => [
+    transaction.name,
+    {
+      id: transaction.id,
+      name: transaction.name,
+      accountNumber: transaction.accountNumber,
+      lastTransactionDate: transaction.transactionDate
+    }
+  ])
+).values()].slice(0, 10);
 
 export default reversedTransactions;
