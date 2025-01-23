@@ -61,7 +61,7 @@ Folders and files structured in a way that these items were put into different s
 - types
 - utils (biometric)
 
-For simplicity, no UI library being used and vanilla styling was applied.
+For simplicity, no UI library being used and vanilla styling was applied. I used CursorAI to speed up repetitive things like mocking the data, troubleshooting and getting a drafted UI component before i started customizing them and write my own methods. I avoid using AI for something I did not know as I barely learn from that process.
 
 ## Things that can be improved
 - use zustand or useContext to get the latest user balance
